@@ -61,7 +61,7 @@ export function Debugging() {
       <div className="page-header">
         <h1 className="page-title">Debugging</h1>
         <p className="page-description">
-          Provide an error and context — IBM watsonx.ai will analyze the probable cause and suggest a fix.
+          Provide an error and context — OpenAI will analyse the probable cause and suggest a fix.
         </p>
       </div>
 
@@ -132,7 +132,7 @@ export function Debugging() {
               {error && <div className="alert alert-error">{error}</div>}
 
               <button className="btn btn-primary" type="submit" disabled={loading} style={{ width: '100%' }}>
-                {loading ? <><span className="spinner" style={{ width: 14, height: 14 }} /> Analyzing with IBM watsonx.ai…</> : 'Analyze Error'}
+                {loading ? <><span className="spinner" style={{ width: 14, height: 14 }} /> Analysing with OpenAI…</> : 'Analyse Error'}
               </button>
             </div>
           </form>
@@ -143,7 +143,7 @@ export function Debugging() {
           {loading && (
             <div className="loading-overlay">
               <div className="spinner" style={{ width: 28, height: 28 }} />
-              <div>Analyzing with IBM watsonx.ai…</div>
+              <div>Analysing with OpenAI…</div>
             </div>
           )}
 
@@ -220,7 +220,7 @@ export function Debugging() {
               )}
 
               <div style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                AI-generated suggestions via IBM watsonx.ai. Verify all recommendations before applying to production code.
+                AI-generated suggestions via OpenAI. Verify all recommendations before applying to production code.
               </div>
             </div>
           )}

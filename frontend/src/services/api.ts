@@ -3,14 +3,12 @@ import axios from 'axios'
 const api = axios.create({
   baseURL: '/api',
   headers: { 'Content-Type': 'application/json' },
-  timeout: 60000,
+  timeout: 90000,
 })
 
-// ---- Repositories ----
-export const listRepositories = () => api.get('/repositories')
+// ---- Repository connection ----
 export const connectRepository = (data: { repository_url: string }) =>
   api.post('/repositories', data)
-export const deleteRepository = (id: number) => api.delete(`/repositories/${id}`)
 
 // ---- Analysis ----
 export const analyzeRepository = (data: { repository_url: string; branch?: string }) =>
@@ -23,10 +21,7 @@ export const analyzeDebug = (data: {
   affected_file?: string
   relevant_code?: string
   context?: string
-  repository_id?: number
 }) => api.post('/debug', data)
-
-export const listDebugSessions = () => api.get('/debug/sessions')
 
 // ---- Testing ----
 export const analyzeTesting = (data: { repository_url: string; branch?: string }) =>

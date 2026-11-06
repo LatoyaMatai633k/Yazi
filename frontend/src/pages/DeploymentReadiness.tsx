@@ -104,7 +104,7 @@ export function DeploymentReadiness() {
       {loading && (
         <div className="loading-overlay">
           <div className="spinner" style={{ width: 28, height: 28 }} />
-          <div>IBM watsonx.ai is reviewing deployment configuration…</div>
+          <div>OpenAI is reviewing deployment configuration…</div>
         </div>
       )}
 
@@ -183,7 +183,7 @@ export function DeploymentReadiness() {
           )}
 
           <div style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-            AI-generated deployment analysis via IBM watsonx.ai. These are recommendations, not guarantees of production safety.
+            AI-generated deployment analysis via OpenAI. These are recommendations, not guarantees of production safety.
           </div>
         </div>
       )}

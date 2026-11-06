@@ -1,0 +1,44 @@
+[build]
+  base = "frontend"
+  command = "npm run build"
+  publish = "dist"
+  functions = "../netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/api/health"
+  to = "/.netlify/functions/health"
+  status = 200
+
+[[redirects]]
+  from = "/api/repositories"
+  to = "/.netlify/functions/repositories-connect"
+  status = 200
+
+[[redirects]]
+  from = "/api/repositories/analyze"
+  to = "/.netlify/functions/repositories-analyze"
+  status = 200
+
+[[redirects]]
+  from = "/api/debug"
+  to = "/.netlify/functions/debug"
+  status = 200
+
+[[redirects]]
+  from = "/api/testing/analyze"
+  to = "/.netlify/functions/testing-analyze"
+  status = 200
+
+[[redirects]]
+  from = "/api/deployment/check"
+  to = "/.netlify/functions/deployment-check"
+  status = 200
+
+# SPA fallback — must be last
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

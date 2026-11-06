@@ -109,7 +109,7 @@ export function Testing() {
       {loading && (
         <div className="loading-overlay">
           <div className="spinner" style={{ width: 28, height: 28 }} />
-          <div>IBM watsonx.ai is reviewing test coverage…</div>
+          <div>OpenAI is reviewing test coverage…</div>
         </div>
       )}
 
@@ -209,7 +209,7 @@ export function Testing() {
           )}
 
           <div style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-            AI-generated testing analysis via IBM watsonx.ai.
+            AI-generated testing analysis via OpenAI.
           </div>
         </div>
       )}

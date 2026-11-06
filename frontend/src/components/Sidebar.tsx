@@ -50,7 +50,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             </span>
           </button>
           <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.6rem' }}>
-            Powered by IBM watsonx.ai
+            Powered by OpenAI
           </div>
         </div>
       </aside>

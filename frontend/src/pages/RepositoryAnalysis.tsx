@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { connectRepository, analyzeRepository } from '../services/api'
+import { analyzeRepository } from '../services/api'
 
 interface AnalysisData {
   project_summary?: string
@@ -31,7 +31,6 @@ interface AnalysisResult {
 export function RepositoryAnalysis() {
   const [url, setUrl] = useState('')
   const [branch, setBranch] = useState('')
-  const [connecting, setConnecting] = useState(false)
   const [analyzing, setAnalyzing] = useState(false)
   const [error, setError] = useState('')
   const [result, setResult] = useState<AnalysisResult | null>(null)
@@ -47,18 +46,13 @@ export function RepositoryAnalysis() {
     }
 
     try {
-      setConnecting(true)
-      await connectRepository({ repository_url: url.trim() })
-      setConnecting(false)
-
       setAnalyzing(true)
       const res = await analyzeRepository({ repository_url: url.trim(), branch: branch.trim() || undefined })
       setResult(res.data)
     } catch (err: any) {
-      const msg = err?.response?.data?.error || 'We could not connect to or analyze this repository. Please try again.'
+      const msg = err?.response?.data?.error || 'We could not connect to or analyse this repository. Please try again.'
       setError(msg)
     } finally {
-      setConnecting(false)
       setAnalyzing(false)
     }
   }
@@ -85,7 +79,7 @@ export function RepositoryAnalysis() {
                 value={url}
                 onChange={e => setUrl(e.target.value)}
                 placeholder="https://github.com/owner/repository"
-                disabled={connecting || analyzing}
+                disabled={analyzing}
               />
             </div>
             <div className="form-group" style={{ marginBottom: 0, width: '140px' }}>
@@ -96,18 +90,17 @@ export function RepositoryAnalysis() {
                 value={branch}
                 onChange={e => setBranch(e.target.value)}
                 placeholder="main"
-                disabled={connecting || analyzing}
+                disabled={analyzing}
               />
             </div>
             <button
               className="btn btn-primary"
               type="submit"
-              disabled={connecting || analyzing}
+              disabled={analyzing}
               style={{ alignSelf: 'flex-end' }}
             >
-              {connecting ? <><span className="spinner" style={{ width: 14, height: 14 }} /> Connecting…</>
-               : analyzing ? <><span className="spinner" style={{ width: 14, height: 14 }} /> Analyzing…</>
-               : 'Analyze Repository'}
+              {analyzing ? <><span className="spinner" style={{ width: 14, height: 14 }} /> Analysing…</>
+               : 'Analyse Repository'}
             </button>
           </div>
         </form>
@@ -115,12 +108,10 @@ export function RepositoryAnalysis() {
 
       {error && <div className="alert alert-error">{error}</div>}
 
-      {(connecting || analyzing) && (
+      {analyzing && (
         <div className="loading-overlay">
           <div className="spinner" style={{ width: 28, height: 28 }} />
-          <div>
-            {connecting ? 'Connecting to repository…' : 'IBM watsonx.ai is analyzing the repository…'}
-          </div>
+          <div>OpenAI is analysing the repository…</div>
           <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
             This may take 20–40 seconds.
           </div>
@@ -208,7 +199,7 @@ export function RepositoryAnalysis() {
           )}
 
           <div style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-            AI-generated analysis via IBM watsonx.ai. Suggestions are inferences, not guarantees.
+            AI-generated analysis via OpenAI. Suggestions are inferences, not guarantees.
           </div>
         </div>
       )}

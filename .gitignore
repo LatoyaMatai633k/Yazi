@@ -3,7 +3,7 @@
 .env.*
 !.env.example
 
-# Python
+# Python (legacy backend -- kept for reference only)
 __pycache__/
 *.py[cod]
 *.pyo
@@ -12,10 +12,15 @@ venv/
 *.egg-info/
 dist/
 build/
+backend/instance/
 
 # Node
 node_modules/
 frontend/dist/
+netlify/functions/node_modules/
+
+# Netlify
+.netlify/
 
 # OS
 .DS_Store

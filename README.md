@@ -2,13 +2,11 @@
 
 **Yazi Dev** is an AI-powered developer assistant that helps you understand unfamiliar codebases and work on them with confidence.
 
-Built with **Google Gemini** for the IBM Bob 2.0 Hackathon.
+> Connect a repository. Understand its architecture. Debug errors. Identify test gaps. Check deployment readiness.
 
 ---
 
 ## What Yazi Dev Does
-
-The core developer workflow:
 
 ```
 Connect Repository → Understand Repository → Investigate Problem → Test → Check Deployment Readiness
@@ -19,7 +17,6 @@ Yazi Dev helps developers answer:
 - What does this repository do?
 - How is the project structured?
 - Where is the important business logic?
-- What does this file/function do?
 - Where could this bug be coming from?
 - What tests should I run?
 - What areas are currently untested?
@@ -27,60 +24,61 @@ Yazi Dev helps developers answer:
 
 ---
 
-## Architecture
-
-```
-React + Vite (TypeScript)
-         ↓
-Flask REST API (Python)
-         ↓
-Yazi AI Service (abstraction layer)
-         ↓
-Google Gemini API
-         ↓
-Structured AI Response
-
-GitHub API  →  Repository Service
-PostgreSQL  →  Application Data
-```
-
----
-
 ## Technology Stack
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React, Vite, TypeScript |
-| Backend | Python, Flask |
-| Database | PostgreSQL |
-| AI | Google Gemini |
+| Frontend | React 19, Vite, TypeScript |
+| Backend | Netlify Functions (Node.js) |
+| AI | OpenRouter API (OpenAI models) |
 | Repository | GitHub REST API |
-| Deployment | Render |
+| Hosting | Netlify |
 
 ---
 
-## Google Gemini Integration
+## Project Structure
 
-Yazi Dev uses Google Gemini as its AI platform. All AI analysis is performed using the `google-generativeai` Python SDK. Credentials are always server-side and never exposed to the frontend.
-
-The model is configurable via `GEMINI_MODEL_ID`. Suitable models include:
-
-- `gemini-1.5-flash` (default — fast and cost-effective)
-- `gemini-1.5-pro` (higher capability)
-- `gemini-2.0-flash`
-
-Set `GEMINI_MODEL_ID` in your environment to switch models.
+```
+yazi-dev/
+├── frontend/                  # React + Vite application
+│   ├── src/
+│   │   ├── components/        # Sidebar, Topbar
+│   │   ├── hooks/             # useTheme
+│   │   ├── pages/             # Dashboard, RepositoryAnalysis, Debugging, Testing, DeploymentReadiness
+│   │   ├── services/          # api.ts — all API calls
+│   │   └── styles/            # globals.css — design system (cream/burgundy theme)
+│   ├── vite.config.ts
+│   └── package.json
+├── netlify/
+│   └── functions/             # Netlify serverless functions
+│       ├── lib/
+│       │   ├── github.js      # GitHub REST API service
+│       │   ├── openai.js      # OpenAI API service + prompt builders
+│       │   └── helpers.js     # CORS headers, JSON response helpers
+│       ├── health.js                  # GET /api/health
+│       ├── repositories-connect.js   # POST /api/repositories
+│       ├── repositories-analyze.js   # POST /api/repositories/analyze
+│       ├── debug.js                   # POST /api/debug
+│       ├── testing-analyze.js         # POST /api/testing/analyze
+│       └── deployment-check.js        # POST /api/deployment/check
+├── backend/                   # Legacy Python/Flask backend (kept for reference)
+├── netlify.toml               # Netlify build + function routing configuration
+├── .env.example               # Environment variable documentation
+└── README.md
+```
 
 ---
 
-## Setup
+## Prerequisites
 
-### Prerequisites
+- **Node.js 18+** — for local development
+- **Netlify CLI** — for running functions locally (`npm install -g netlify-cli`)
+- **OpenRouter API key** — [get one at openrouter.ai/keys](https://openrouter.ai/keys)
+- **GitHub Personal Access Token** — optional but recommended for higher rate limits
 
-- Python 3.10+
-- Node.js 18+
-- PostgreSQL
-- Google Gemini API key ([get one free at Google AI Studio](https://aistudio.google.com/app/apikey))
+---
+
+## Local Development
 
 ### 1. Clone the repository
 
@@ -89,171 +87,154 @@ git clone https://github.com/your-username/yazi-dev
 cd yazi-dev
 ```
 
-### 2. Backend setup
-
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-Copy the example environment file and fill in your credentials:
+### 2. Configure environment variables
 
 ```bash
 cp .env.example .env
 ```
 
-Edit `.env`:
+Edit `.env` and fill in your credentials:
 
 ```
-GEMINI_API_KEY=your_gemini_api_key_here
-GEMINI_MODEL_ID=gemini-1.5-flash
-
-DATABASE_URL=postgresql://user:password@localhost:5432/yazidev
-FLASK_ENV=development
-FLASK_SECRET_KEY=a-random-secret-key
-CORS_ORIGINS=http://localhost:5173
-GITHUB_TOKEN=your_github_token
+OPENROUTER_API_KEY=your_openrouter_api_key_here
+OPENROUTER_MODEL=openai/gpt-4o-mini
+GITHUB_TOKEN=your_github_personal_access_token_here
 ```
 
-### 3. Database setup
-
-```bash
-# Create the database
-createdb yazidev
-
-# Tables are created automatically on first run
-python run.py
-```
-
-### 4. Frontend setup
+### 3. Install frontend dependencies
 
 ```bash
 cd frontend
 npm install
-cp .env.example .env.local
 ```
 
-The frontend proxy is configured in `vite.config.ts` to forward `/api` calls to `http://localhost:5000`.
+### 4. Run locally with Netlify Dev
 
-### 5. Run locally
-
-**Backend** (from `backend/`):
+From the **project root**:
 
 ```bash
-python run.py
+netlify dev
 ```
 
-**Frontend** (from `frontend/`):
+This starts:
+- Netlify Functions on `http://localhost:8888`
+- The Vite dev server (proxied through Netlify Dev)
 
-```bash
-npm run dev
-```
+Open `http://localhost:8888` in your browser.
 
-Open `http://localhost:5173`.
+> **Without Netlify CLI:** You can run `npm run dev` from `frontend/` but API calls will not work unless you have a separately running function server.
 
 ---
 
 ## Environment Variables
 
-### Backend (`.env`)
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `OPENROUTER_API_KEY` | ✅ Required | Your OpenRouter API key. Get one at [openrouter.ai/keys](https://openrouter.ai/keys) |
+| `OPENROUTER_MODEL` | Optional | Model to use via OpenRouter. Default: `openai/gpt-4o-mini`. Format: `provider/model`. See [openrouter.ai/models](https://openrouter.ai/models) |
+| `GITHUB_TOKEN` | Recommended | GitHub personal access token. Without it, GitHub API rate limits apply (60 req/hr). With it: 5,000 req/hr. Required scope: `public_repo` for public repos, `repo` for private repos. |
 
-| Variable | Description |
-|----------|-------------|
-| `GEMINI_API_KEY` | Google Gemini API key |
-| `GEMINI_MODEL_ID` | Gemini model ID (default: `gemini-1.5-flash`) |
-| `DATABASE_URL` | PostgreSQL connection string |
-| `FLASK_SECRET_KEY` | Flask session secret |
-| `FLASK_ENV` | `development` or `production` |
-| `CORS_ORIGINS` | Comma-separated list of allowed frontend origins |
-| `GITHUB_TOKEN` | GitHub personal access token (optional, increases rate limits) |
+### Getting an OpenRouter API key
 
-### How to get a Gemini API key
+1. Go to [openrouter.ai](https://openrouter.ai) and create an account
+2. Navigate to [openrouter.ai/keys](https://openrouter.ai/keys)
+3. Click **Create Key**
+4. Copy the key into your `.env` as `OPENROUTER_API_KEY`
 
-1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
-2. Sign in with your Google account
-3. Click **Create API key**
-4. Copy the key into your `.env` as `GEMINI_API_KEY`
+### Getting a GitHub Personal Access Token
+
+1. Go to [github.com/settings/tokens](https://github.com/settings/tokens)
+2. Click **Generate new token (classic)**
+3. Select scope: `public_repo` (for public repos) or `repo` (for private repos)
+4. Copy the token into your `.env` as `GITHUB_TOKEN`
 
 ---
 
 ## API Endpoints
 
+All endpoints are Netlify Functions accessed via `/api/` (redirects configured in `netlify.toml`).
+
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/api/health` | Health check + AI status |
-| `GET` | `/api/repositories` | List connected repositories |
-| `POST` | `/api/repositories` | Connect a repository |
-| `DELETE` | `/api/repositories/:id` | Remove a repository |
+| `GET` | `/api/health` | Health check + AI provider status |
+| `POST` | `/api/repositories` | Validate and connect a GitHub repository |
 | `POST` | `/api/repositories/analyze` | Run AI repository analysis |
-| `POST` | `/api/debug` | Run AI debug analysis |
-| `POST` | `/api/testing/analyze` | Run AI testing analysis |
+| `POST` | `/api/debug` | Run AI debug analysis on an error |
+| `POST` | `/api/testing/analyze` | Run AI testing gap analysis |
 | `POST` | `/api/deployment/check` | Run AI deployment readiness check |
 
 ---
 
-## Deployment (Render)
+## Deploying to Netlify
 
-This project ships with a `render.yaml` Blueprint — import the repo on Render and it auto-configures both services and the database.
+### Option A: Deploy via Netlify CLI
 
-### Backend
+```bash
+# Authenticate
+netlify login
 
-- **Root Directory**: `backend`
-- **Build Command**: `pip install -r requirements.txt`
-- **Start Command**: `gunicorn run:app`
-- Set `GEMINI_API_KEY` in the Render environment dashboard (marked `sync: false`)
-- `GEMINI_MODEL_ID` defaults to `gemini-1.5-flash` (override if needed)
-- `DATABASE_URL` is injected automatically from the linked PostgreSQL instance
+# Link to a new or existing site
+netlify init
 
-### Frontend
+# Build and deploy
+netlify deploy --prod
+```
 
-- **Root Directory**: `frontend`
-- **Build Command**: `npm install && npm run build`
-- **Publish Directory**: `dist`
-- Set `VITE_API_BASE_URL` to your deployed backend URL
+### Option B: Deploy via Netlify Dashboard
+
+1. Push your repository to GitHub.
+2. Log in to [app.netlify.com](https://app.netlify.com) and click **Add new site → Import an existing project**.
+3. Connect your GitHub repository.
+4. Netlify auto-detects `netlify.toml`. Build settings are pre-configured:
+   - **Base directory**: `frontend`
+   - **Build command**: `npm run build`
+   - **Publish directory**: `dist`
+   - **Functions directory**: `netlify/functions`
+5. Go to **Site configuration → Environment variables** and add:
+   - `OPENROUTER_API_KEY` — your OpenRouter key
+   - `OPENROUTER_MODEL` — e.g. `openai/gpt-4o-mini`
+   - `GITHUB_TOKEN` — your GitHub token
+6. Click **Deploy site**.
 
 ---
 
 ## Features
 
-- **Repository Analysis** — AI-powered architecture, stack, and file analysis
+- **Repository Analysis** — AI-powered architecture, stack, and file analysis via GitHub + OpenRouter
 - **Debugging** — Error diagnosis with probable cause and fix suggestions
-- **Testing** — Gap analysis, suggested test cases, and edge cases
+- **Testing** — Gap analysis, suggested test cases, edge cases
 - **Deployment Readiness** — Configuration, security, and production checks
 - **Light & Dark Mode** — Persisted theme preference
-- **Responsive Design** — Mobile, tablet, and desktop
+- **Responsive Design** — Mobile, tablet, and desktop layouts
 
 ---
 
-## IBM Bob Development
-
-This project was built using **IBM Bob 2.0** as the primary development assistant.
-
-Bob was used for:
-
-- Project scaffolding and structure
-- Backend Flask implementation
-- Frontend React/TypeScript implementation
-- Google Gemini integration
-- Database modeling
-- GitHub service implementation
-- Error handling and security review
-- Documentation
-
----
-
-## Limitations
+## Known Limitations
 
 - Repository analysis is based on file structure, README, and config files — not full code parsing
 - AI responses are generated inferences, not guaranteed facts
-- Large repositories may hit context limits
-- GitHub rate limiting applies without a token
+- Large repositories may hit GitHub API context limits (tree capped at 300 files)
+- GitHub API rate limiting applies without a GITHUB_TOKEN (60 requests/hour)
+- Netlify Functions are stateless — there is no persistent repository or session history between page loads. All analysis results are held in React component state for the current session only.
 
-## Future Improvements
+---
 
-- GitLab support
-- Direct file/function analysis with code reading
-- Session history and saved analyses
-- Team collaboration features
-- CI/CD pipeline integration
+## Removed Integrations
+
+The following services have been removed from the original codebase:
+
+| Removed | Replaced With |
+|---------|--------------|
+| Google Gemini API | OpenRouter API (OpenAI models) |
+| IBM watsonx.ai (WatsonX branding) | OpenRouter |
+| Direct OpenAI API calls (`api.openai.com`) | OpenRouter (`openrouter.ai/api/v1`) |
+| Python Flask backend | Netlify Functions (Node.js) |
+| PostgreSQL / SQLAlchemy | Stateless serverless (no DB required) |
+| Render deployment (`render.yaml`) | Netlify (`netlify.toml`) |
+| Supabase (not used, removed) | N/A |
+
+---
+
+## Built With IBM Bob
+
+This project was built and modernised using **IBM Bob** as the primary development assistant.
